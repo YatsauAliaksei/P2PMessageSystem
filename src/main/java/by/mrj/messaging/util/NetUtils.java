@@ -46,7 +46,7 @@ public abstract class NetUtils {
         try {
             ObjectInputStream ois = new ObjectInputStream(is);
             checkMagic(ois);
-            return (Message) ois.readObject();
+            return (Message) ois.readObject(); // command check to know validations to be performed.
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

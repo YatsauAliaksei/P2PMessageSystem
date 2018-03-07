@@ -7,11 +7,5 @@ public interface MessageProcessor {
      * @param message - request Message
      * @return - response message
      */
-    Message<?> processWithResponse(Message<?> message);
-
-    /**
-     * Process message.
-     * @param message - request Message
-     */
-    void process(Message<?> message);
+    Message<?> process(Message<?> message);
 }

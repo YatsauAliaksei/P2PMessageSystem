@@ -69,7 +69,7 @@ public class DiscoveryService {
                 }).build();
 
         zkClient.start();
-        log.debug("Curator client has started.");
+        log.debug("Curator client has been started.");
 
         peersPath = "/app/" + this.appName + "/peers";
 
@@ -87,11 +87,13 @@ public class DiscoveryService {
     }
 
     public List<String> discoverNodes() {
+        // todo: remove own path.
         return silent(zkClient.getChildren(), peersPath);
     }
 
     @SneakyThrows
     public <T> T getNodeData(String nodeName, Class<T> clazz) {
+        log.debug("Getting node [{}] of type [{}]", nodeName, clazz);
         byte[] bytes = zkClient.getData().forPath(peersPath + "/" + nodeName);
         return NetUtils.deserialize(bytes, clazz);
     }
@@ -123,6 +125,11 @@ public class DiscoveryService {
                 .address(address)
                 .ip(ip)
                 .build();
+
+        if (log.isDebugEnabled()) {
+            List<String> list = returnPathRecursively("/");
+            log.debug("All paths: [{}]", list);
+        }
 
         silent(zkClient.create()
                 .withMode(CreateMode.EPHEMERAL), peersPath + "/" + address, registration);

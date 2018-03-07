@@ -29,10 +29,9 @@ public class MsgService {
 
     // TODO
     public void sendMessage(Message<?> message) {
+        log.debug("Sending message [{}]", message);
         List<Message<?>> response = networkService.sendToNetwork(message);
-        log.info("Response: {}", response);
-
-
+        log.debug("Response: {}", response);
     }
 
     // TODO
