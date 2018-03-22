@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -49,6 +50,15 @@ public abstract class NetUtils {
             return (Message) ois.readObject(); // command check to know validations to be performed.
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close(); // no synchronization
+            } catch (IOException ignored) {
+            }
         }
     }
 

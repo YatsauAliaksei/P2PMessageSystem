@@ -1,24 +1,22 @@
 package by.mrj.messaging.network;
 
 import by.mrj.messaging.network.domain.Registration;
+import by.mrj.messaging.network.transport.NetServerSocket;
+import by.mrj.messaging.network.transport.NetSocket;
+import by.mrj.messaging.network.transport.Transport;
 import by.mrj.messaging.util.NetUtils;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import static java.util.stream.Collectors.toList;
 
@@ -26,19 +24,19 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class NetworkService {
 
-    private final int port;
     private final MessageProcessor operationMarshaller;
     private final DiscoveryService discoveryService;
+    private final Transport transport;
 
     private List<String> peers;
 
     @Autowired
     public NetworkService(MessageProcessor operationMarshaller,
                           DiscoveryService discoveryService,
-                          @Value("${app.listener.port}") int port) {
+                          Transport transport) {
         this.operationMarshaller = operationMarshaller;
         this.discoveryService = discoveryService;
-        this.port = port;
+        this.transport = transport;
     }
 
     @PostConstruct
@@ -59,19 +57,19 @@ public class NetworkService {
 
     @SneakyThrows
     public Message<?> sendWithResponse(String address, Message<?> message) {
-        try (Socket socket = new Socket(address, port)) {
-            send(message, socket);
-
-            InputStream inputStream = socket.getInputStream();
-            return NetUtils.deserialize(inputStream);
+        log.debug("Sending message to address [{}], [{}]", message, address);
+        byte[] bytes = NetUtils.serialize(message);
+        try (InputStream is = transport.sendWithResponse(bytes, address)) {
+            return NetUtils.deserialize(is);
         }
     }
 
     @SneakyThrows
-    public void send(Message<?> message, Socket socket) {
+    private void send(Message<?> message, NetSocket socket) {
         log.debug("Sending message to socket [{}], [{}]", message, socket);
-        OutputStream os = socket.getOutputStream();
-        os.write(NetUtils.serialize(message));
+        OutputStream os = socket.outputStream();
+        byte[] bytes = NetUtils.serialize(message);
+        os.write(bytes);
         os.flush();
     }
 
@@ -97,27 +95,28 @@ public class NetworkService {
     }
 
     private void listening() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
-            while (true) {
-                log.debug("Listening socket {}", port);
 
-                Socket clientSocket = serverSocket.accept();
+        try (NetServerSocket serverSocket = transport.listening()) {
+            while (true) {
+                log.debug("Listening socket.");
+
+                NetSocket clientSocket = serverSocket.accept();
 
                 CompletableFuture.runAsync(() -> {
-                    try (Socket socket = clientSocket) {
-                        Message<?> message = NetUtils.deserialize(socket.getInputStream());
+                    try (NetSocket socket = clientSocket) {
+                        Message<?> message = NetUtils.deserialize(socket.inputStream());
                         log.debug("Message received. [{}]", message);
 
                         Message<?> response = operationMarshaller.process(message);
                         if (response != null) {
                             send(response, socket);
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new RuntimeException(e); // todo
                     }
                 });
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e); // todo
         }
     }

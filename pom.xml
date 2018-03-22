@@ -87,6 +87,13 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+
         <!--Logging-->
         <!--<dependency>-->
             <!--<groupId>org.slf4j</groupId>-->
