@@ -36,7 +36,6 @@ import com.google.common.collect.Lists;
 
 @Getter
 @Log4j2
-@Service
 public class DiscoveryService {
 
     private final CuratorFramework zkClient;
@@ -44,9 +43,9 @@ public class DiscoveryService {
     private final String peersPath;
     private final String ip;
 
-    @Autowired
     public DiscoveryService(@Value("${discovery.service.connection}") String connection,
-                            @Value("${app.root.node.name}") String appName) {
+                            @Value("${app.root.node.name}") String appName,
+                            @Value("${peer.net.address}") String netAddress) {
         this.appName = appName;
         this.ip = getWorldIp();
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
@@ -54,7 +53,6 @@ public class DiscoveryService {
         zkClient = CuratorFrameworkFactory.builder()
                 .connectString(connection)
                 .retryPolicy(retryPolicy)
-//                .authorization("digest", "someThing signed with private key or public key it self.".getBytes())
                 .authorization("digest", "someThing signed with private key.".getBytes())
                 .aclProvider(new ACLProvider() {
                     @Override
@@ -74,7 +72,7 @@ public class DiscoveryService {
         peersPath = "/app/" + this.appName + "/peers";
 
         createRootPeersPath();
-        registerAsAPeer();
+        registerAsAPeer(netAddress);
     }
 
     @SneakyThrows
@@ -119,11 +117,11 @@ public class DiscoveryService {
         return paths;
     }
 
-    private void registerAsAPeer() {
+    private void registerAsAPeer(String netAddress) {
         String address = CryptoUtils.sha256ripemd160(EncodingUtils.HEX.encode(CryptoUtils.pubKey));
         Registration registration = Registration.builder()
                 .address(address)
-                .ip(ip)
+                .ip(netAddress)
                 .build();
 
         if (log.isDebugEnabled()) {

@@ -44,7 +44,7 @@ public class DiscoveryServiceTest {
 
     private static DiscoveryService discoveryService() {
         if (discoveryService == null) {
-            discoveryService = new DiscoveryService("192.168.2.111:2181", "main");
+            discoveryService = new DiscoveryService("192.168.2.111:2181", "main", "my.net.address");
         }
         return discoveryService;
     }

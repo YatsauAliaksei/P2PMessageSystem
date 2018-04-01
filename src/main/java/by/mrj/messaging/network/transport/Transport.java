@@ -6,4 +6,6 @@ public interface Transport {
     InputStream sendWithResponse(byte[] bytes, String address);
 
     NetServerSocket listening();
+
+    String netAddress();
 }

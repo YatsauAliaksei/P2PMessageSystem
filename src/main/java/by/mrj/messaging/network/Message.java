@@ -21,6 +21,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class Message<T extends Hashable & Serializable> implements Hashable, Serializable {
 
+    private static final long serialVersionUID = 1L;
     @NonNull
     Command command; //?
     //    long length;
