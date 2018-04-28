@@ -7,7 +7,6 @@ import by.mrj.message.types.Command;
 import by.mrj.message.util.MessageUtils;
 import by.mrj.message.util.NetUtils;
 import by.mrj.messaging.network.transport.Transport;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 
@@ -19,7 +18,7 @@ import com.google.common.io.BaseEncoding;
 
 @Getter
 @Log4j2
-//@AllArgsConstructor
+//TODO: Should support multiple seeds to discover.
 public class DnsDiscovery implements DiscoveryService {
 
     private Transport transport;
@@ -50,6 +49,7 @@ public class DnsDiscovery implements DiscoveryService {
                     .omitEmptyStrings()
                     .trimResults()
                     .splitToList(peersResponse.getPayload().getNetworkAddress());
+
             log.info("Nodes received [{}]", nodes);
             return nodes ;
         } catch (IOException e) {
