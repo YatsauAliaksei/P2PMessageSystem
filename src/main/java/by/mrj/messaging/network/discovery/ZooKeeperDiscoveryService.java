@@ -1,9 +1,10 @@
-package by.mrj.messaging.network;
+package by.mrj.messaging.network.discovery;
 
 import by.mrj.crypto.util.CryptoUtils;
 import by.mrj.crypto.util.EncodingUtils;
-import by.mrj.messaging.network.domain.Registration;
-import by.mrj.messaging.util.NetUtils;
+import by.mrj.message.domain.Registration;
+import by.mrj.message.types.Command;
+import by.mrj.message.util.NetUtils;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -20,34 +21,27 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.framework.api.GetChildrenBuilder;
 import org.apache.curator.framework.api.PathAndBytesable;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.Quotas;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 
 @Getter
 @Log4j2
-public class DiscoveryService {
+public class ZooKeeperDiscoveryService implements DiscoveryService {
 
     private final CuratorFramework zkClient;
     private final String appName;
     private final String peersPath;
-    private final String ip;
+//    private final String ip;
 
-    public DiscoveryService(@Value("${discovery.service.connection}") String connection,
-                            @Value("${app.root.node.name}") String appName,
-                            @Value("${peer.net.address}") String netAddress) {
+    public ZooKeeperDiscoveryService(@Value("${discovery.service.connection}") String connection,
+                                     @Value("${app.root.node.name}") String appName,
+                                     @Value("${peer.net.address}") String netAddress) {
         this.appName = appName;
-        this.ip = getWorldIp();
+//        this.ip = getOwnAddress();
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 
         zkClient = CuratorFrameworkFactory.builder()
@@ -75,25 +69,31 @@ public class DiscoveryService {
         registerAsAPeer(netAddress);
     }
 
-    @SneakyThrows
-    String getWorldIp() { // better to have multiple calls to diff services to determine world ip.
-        return Request.Get("https://ifconfig.co/ip")
+/*    @SneakyThrows
+    @Override
+    public String getOwnAddress() { // better to have multiple calls to diff services to determine world ip.
+        return Request.Get("https://ifconfig.co/ip") // fix: broken. Will return NAT address.
                 .execute().handleResponse(httpResponse -> {
                     HttpEntity entity = httpResponse.getEntity();
                     return entity != null ? new Content(EntityUtils.toByteArray(entity), ContentType.getOrDefault(entity)) : Content.NO_CONTENT;
                 }).asString().trim();
-    }
+    }*/
 
-    public List<String> discoverNodes() {
+    @Override
+    public List<String> discoverPeers() {
         // todo: remove own path.
         return silent(zkClient.getChildren(), peersPath);
+//        return nodes.stream()
+//                .map(node -> getPeerData(node, Registration.class))
+//                .collect(toList());
     }
 
     @SneakyThrows
-    public <T> T getNodeData(String nodeName, Class<T> clazz) {
-        log.debug("Getting node [{}] of type [{}]", nodeName, clazz);
-        byte[] bytes = zkClient.getData().forPath(peersPath + "/" + nodeName);
-        return NetUtils.deserialize(bytes, clazz);
+    @Override
+    public Registration getPeerData(String peerName) {
+        log.debug("Getting node [{}] of type [{}]", peerName, Command.REGISTRATION);
+        byte[] bytes = zkClient.getData().forPath(peersPath + "/" + peerName);
+        return NetUtils.deserialize(bytes, Registration.class);
     }
 
     public List<String> returnPathRecursively(String path) {
@@ -121,7 +121,7 @@ public class DiscoveryService {
         String address = CryptoUtils.sha256ripemd160(EncodingUtils.HEX.encode(CryptoUtils.pubKey));
         Registration registration = Registration.builder()
                 .address(address)
-                .ip(netAddress)
+                .networkAddress(netAddress)
                 .build();
 
         if (log.isDebugEnabled()) {

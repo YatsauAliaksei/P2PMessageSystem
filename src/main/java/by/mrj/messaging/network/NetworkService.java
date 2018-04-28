@@ -1,10 +1,13 @@
 package by.mrj.messaging.network;
 
-import by.mrj.messaging.network.domain.Registration;
+import by.mrj.message.domain.Message;
+import by.mrj.message.util.NetUtils;
+import by.mrj.messaging.network.discovery.DiscoveryService;
+import by.mrj.messaging.network.discovery.ZooKeeperDiscoveryService;
+import by.mrj.message.domain.Registration;
 import by.mrj.messaging.network.transport.NetServerSocket;
 import by.mrj.messaging.network.transport.NetSocket;
 import by.mrj.messaging.network.transport.Transport;
-import by.mrj.messaging.util.NetUtils;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
@@ -41,7 +44,7 @@ public class NetworkService {
 
     @PostConstruct
     private void init() {
-        this.peers = getPeers(discoveryService);
+        this.peers = getPeers();
         log.debug("Network has been created. [{}]", peers);
 
         CompletableFuture.runAsync(this::listening, Executors.newCachedThreadPool(r -> {
@@ -51,8 +54,8 @@ public class NetworkService {
         }));
     }
 
-    private List<String> getPeers(DiscoveryService discoveryService) {
-        return discoveryService.discoverNodes();
+    private List<String> getPeers() {
+        return discoveryService.discoverPeers();
     }
 
     @SneakyThrows
@@ -86,8 +89,8 @@ public class NetworkService {
         log.debug("Sending message to peers.");
 
         List<Message<?>> responses = peers.parallelStream()
-                .map(s -> discoveryService.getNodeData(s, Registration.class))
-                .map(s -> sendWithResponse(s.getIp(), message)) // todo: port should be configurable
+                .map(discoveryService::getPeerData)
+                .map(s -> sendWithResponse(s.getNetworkAddress(), message)) // todo: port should be configurable
                 .collect(toList());
 
         log.debug("Received {} responses.", responses.size());

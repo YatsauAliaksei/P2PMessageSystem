@@ -18,12 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 @Log4j2
 public class SimpleSocketTransport implements Transport {
 
-    private final int port;
     private final String netAddress;
 
-    public SimpleSocketTransport(@Value("${app.net.address}") String netAddress,
-                                 @Value("${app.listener.port}") int port) {
-        this.port = port;
+    public SimpleSocketTransport(@Value("${app.net.address}") String netAddress) {
         this.netAddress = netAddress;
     }
 
@@ -35,20 +32,21 @@ public class SimpleSocketTransport implements Transport {
         OutputStream os = socket.getOutputStream();
         os.write(bytes);
         os.flush();
-        socket.shutdownOutput();
+//        socket.shutdownOutput();
 
         return socket.getInputStream();
     }
 
     @Override
     public NetServerSocket listening() {
+        int port = Integer.valueOf(netAddress.split(":")[1]);
         log.debug("Listening socket {}.", port);
         return new BasicNetServerSocket(port);
     }
 
     @Override
     public String netAddress() {
-        return netAddress + ":" + port;
+        return netAddress;
     }
 
     private static final class BasicNetServerSocket implements NetServerSocket {

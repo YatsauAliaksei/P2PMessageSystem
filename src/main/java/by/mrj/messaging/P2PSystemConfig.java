@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @ComponentScan("by.mrj.messaging")
 @ConditionalOnBean(MessageProcessor.class)
-@ConditionalOnProperty(name = {"p2p.messaging.enabled"}, havingValue = "true")
+//@ConditionalOnProperty(name = {"p2p.messaging.enabled"}, havingValue = "true")
 @Configuration
 public class P2PSystemConfig {
 

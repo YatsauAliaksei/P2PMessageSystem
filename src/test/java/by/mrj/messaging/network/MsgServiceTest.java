@@ -1,8 +1,10 @@
 package by.mrj.messaging.network;
 
-import by.mrj.messaging.network.domain.Registration;
+import by.mrj.message.domain.Message;
+import by.mrj.message.domain.Registration;
 import by.mrj.crypto.util.EncodingUtils;
-import by.mrj.messaging.network.types.Command;
+import by.mrj.message.types.Command;
+import by.mrj.message.util.MessageUtils;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 
@@ -19,7 +21,7 @@ public class MsgServiceTest {
 
         log.info("Sig: [{}]", message.getSignature());
 
-        boolean verifySignature = MsgService.verifyMessage(message);
+        boolean verifySignature = MessageUtils.verifyMessage(message);
         assertThat(verifySignature).isTrue();
     }
 
@@ -33,14 +35,14 @@ public class MsgServiceTest {
 
         log.info("Sig: [{}]", message.getSignature());
 
-        boolean verifySignature = MsgService.verifyMessage(message);
+        boolean verifySignature = MessageUtils.verifyMessage(message);
         assertThat(verifySignature).isFalse();
     }
 
     private Message<Registration> createBaseMsg() {
-        Registration payload = Registration.builder().ip("192.168.0.0").address("My address").build();
-        val message = MsgService.makeMessageWithPubKey(payload, Command.REGISTRATION);
-        MsgService.signMessage(message);
+        Registration payload = Registration.builder().networkAddress("192.168.0.0").address("My address").build();
+        val message = MessageUtils.makeMessageWithPubKey(payload, Command.REGISTRATION);
+        MessageUtils.signMessage(message);
         return message;
     }
 }

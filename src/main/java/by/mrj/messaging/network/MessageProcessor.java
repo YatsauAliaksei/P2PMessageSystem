@@ -1,5 +1,7 @@
 package by.mrj.messaging.network;
 
+import by.mrj.message.domain.Message;
+
 public interface MessageProcessor {
 
     /**
