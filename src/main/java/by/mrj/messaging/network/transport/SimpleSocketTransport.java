@@ -27,8 +27,8 @@ public class SimpleSocketTransport implements Transport {
     @Override
     @SneakyThrows
     public InputStream sendWithResponse(byte[] bytes, String address) {
-        String[] addr = address.split(":");
-        Socket socket = new Socket(addr[0], Integer.valueOf(addr[1]));
+        String[] addressAndPort = address.split(":");
+        Socket socket = new Socket(addressAndPort[0], Integer.valueOf(addressAndPort[1]));
         OutputStream os = socket.getOutputStream();
         os.write(bytes);
         os.flush();

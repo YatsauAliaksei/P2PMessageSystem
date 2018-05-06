@@ -3,8 +3,6 @@ package by.mrj.messaging.network;
 import by.mrj.message.domain.Message;
 import by.mrj.message.util.NetUtils;
 import by.mrj.messaging.network.discovery.DiscoveryService;
-import by.mrj.messaging.network.discovery.ZooKeeperDiscoveryService;
-import by.mrj.message.domain.Registration;
 import by.mrj.messaging.network.transport.NetServerSocket;
 import by.mrj.messaging.network.transport.NetSocket;
 import by.mrj.messaging.network.transport.Transport;
@@ -59,7 +57,7 @@ public class NetworkService {
     }
 
     @SneakyThrows
-    public Message<?> sendWithResponse(String address, Message<?> message) {
+    public Message<?> sendToAddress(String address, Message<?> message) {
         log.debug("Sending message to address [{}], [{}]", message, address);
         byte[] bytes = NetUtils.serialize(message);
         try (InputStream is = transport.sendWithResponse(bytes, address)) {
@@ -90,7 +88,7 @@ public class NetworkService {
 
         List<Message<?>> responses = peers.parallelStream()
                 .map(discoveryService::getPeerData)
-                .map(s -> sendWithResponse(s.getNetworkAddress(), message)) // todo: port should be configurable
+                .map(s -> sendToAddress(s.getNetworkAddress(), message)) // todo: port should be configurable
                 .collect(toList());
 
         log.debug("Received {} responses.", responses.size());
