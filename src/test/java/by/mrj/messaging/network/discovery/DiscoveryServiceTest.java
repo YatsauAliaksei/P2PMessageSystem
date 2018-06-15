@@ -1,14 +1,17 @@
 package by.mrj.messaging.network.discovery;
 
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.List;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Log4j2
+@Slf4j
 public class DiscoveryServiceTest {
 
     private static ZooKeeperDiscoveryService discoveryService;
@@ -26,6 +29,7 @@ public class DiscoveryServiceTest {
 
     @Test
 //    @Ignore("Integration test. Zookeeper instance needed.")
+    @Ignore
     public void discoverNodes() {
         val peers = discoveryService().discoverPeers();
         log.info("Peers found [{}]", peers);
@@ -35,6 +39,7 @@ public class DiscoveryServiceTest {
 
     @Test
 //    @Ignore("Integration test. Zookeeper instance needed.")
+    @Ignore
     public void returnPathRecursively() {
         List<String> paths = discoveryService().returnPathRecursively("/");
         assertThat(paths.size() > 3).isTrue();

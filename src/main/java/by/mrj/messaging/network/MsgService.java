@@ -1,13 +1,13 @@
 package by.mrj.messaging.network;
 
 import by.mrj.message.domain.Message;
-import lombok.extern.log4j.Log4j2;
-
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Log4j2
+import java.util.List;
+
+@Slf4j
 @Service
 // todo: works like proxy. Maybe should be removed.
 public class MsgService {

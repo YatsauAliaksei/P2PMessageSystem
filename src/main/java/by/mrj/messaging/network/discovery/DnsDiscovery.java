@@ -7,17 +7,17 @@ import by.mrj.message.types.Command;
 import by.mrj.message.util.MessageUtils;
 import by.mrj.message.util.NetUtils;
 import by.mrj.messaging.network.transport.Transport;
+import com.google.common.base.Splitter;
+import com.google.common.io.BaseEncoding;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import com.google.common.base.Splitter;
-import com.google.common.io.BaseEncoding;
 
 @Getter
-@Log4j2
+@Slf4j
 //TODO: Should support multiple seeds to discover.
 public class DnsDiscovery implements DiscoveryService {
 

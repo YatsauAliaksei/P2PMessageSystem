@@ -7,7 +7,9 @@ import by.mrj.messaging.network.transport.NetServerSocket;
 import by.mrj.messaging.network.transport.NetSocket;
 import by.mrj.messaging.network.transport.Transport;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
@@ -16,12 +18,10 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import static java.util.stream.Collectors.toList;
 
-@Log4j2
+@Slf4j
 @Service
 public class NetworkService {
 

@@ -5,15 +5,10 @@ import by.mrj.crypto.util.EncodingUtils;
 import by.mrj.message.domain.Registration;
 import by.mrj.message.types.Command;
 import by.mrj.message.util.NetUtils;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
-
-import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -26,10 +21,15 @@ import org.apache.zookeeper.Quotas;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.springframework.beans.factory.annotation.Value;
-import com.google.common.collect.Lists;
+
+import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 @Getter
-@Log4j2
+@Slf4j
 public class ZooKeeperDiscoveryService implements DiscoveryService {
 
     private final CuratorFramework zkClient;

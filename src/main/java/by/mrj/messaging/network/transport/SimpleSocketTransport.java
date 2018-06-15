@@ -3,19 +3,19 @@ package by.mrj.messaging.network.transport;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Simple socket based transport which uses Socket and ServerSocket
  * as compositions to implement API Interfaces.
  */
-@Log4j2
+@Slf4j
 public class SimpleSocketTransport implements Transport {
 
     private final String netAddress;

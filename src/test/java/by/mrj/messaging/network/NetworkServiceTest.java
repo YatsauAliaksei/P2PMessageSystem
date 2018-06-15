@@ -11,16 +11,20 @@ import javax.naming.directory.InitialDirContext;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 
-@Log4j2
+@Slf4j
 public class NetworkServiceTest {
 
 
     @Test
+    @Ignore
     public void dnsLookup_Bitcoin_Full_Nodes() {
         Set<String> strings = dnsLookup("seed.bitcoin.sipa.be", "A");
-        log.info(strings);
+        log.info(strings.toString());
     }
 
     @SneakyThrows

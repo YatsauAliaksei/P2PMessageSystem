@@ -6,13 +6,14 @@ import by.mrj.crypto.util.EncodingUtils;
 import by.mrj.message.types.Command;
 import by.mrj.message.util.MessageUtils;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Log4j2
+@Slf4j
 public class MsgServiceTest {
 
     @Test
